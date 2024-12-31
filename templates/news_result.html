@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TextMind</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Favicon and Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="static\apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="static\favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="static\favicon-16x16.png">
+    <link rel="manifest" href="static\site.webmanifest">
+    <!-- Custom CSS (optional if needed) -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body class="bg-gray-900 text-gray-200 min-h-screen flex flex-col items-center justify-center font-roboto">
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-8 max-w-3xl bg-gray-800 rounded-xl shadow-lg">
+        <!-- Summary Section -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-blue-500">Summary:</h2>
+            <p id="summary-text" class="mt-4 text-gray-300 bg-gray-700 p-4 rounded-lg">{{ summary }}</p>
+        </div>
+
+        <!-- Original URL -->
+        <div class="mb-6">
+            <h3 class="text-lg font-semibold text-blue-400">Original URL:</h3>
+            <p><a href="{{ url }}" target="_blank" class="text-blue-500 hover:underline">{{ url }}</a></p>
+        </div>
+
+        <!-- User Input Textarea -->
+        <textarea id="user-text-input" class="w-full bg-gray-700 text-gray-300 p-4 rounded-lg mb-6" rows="4"
+            placeholder="Enter your text here..."></textarea>
+
+        <!-- Buttons for NER and Topic Modeling -->
+        <div class="flex space-x-4 mb-6">
+            <button onclick="performNER('summary-text')"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">
+                Analyze NER on Summary
+            </button>
+            <button onclick="performTopicModeling('summary-text')"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">
+                Analyze Topic Modeling on Summary
+            </button>
+        </div>
+
+        <div class="flex space-x-4 mb-6">
+            <button onclick="performNER('user-text-input')"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">
+                Analyze NER on User Input
+            </button>
+            <button onclick="performTopicModeling('user-text-input')"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md">
+                Analyze Topic Modeling on User Input
+            </button>
+        </div>
+
+        <!-- NER Results Section -->
+        <div id="ner-results-container" class="hidden mb-6">
+            <h2 class="text-xl font-bold text-blue-500">NER Results:</h2>
+            <div id="ner-results" class="bg-gray-700 text-gray-300 p-4 rounded-lg mt-4"></div>
+        </div>
+
+        <!-- Topic Modeling Results Section -->
+        <div id="topic-modeling-results-container" class="hidden mb-6">
+            <h2 class="text-xl font-bold text-blue-500">Topic Modeling Results:</h2>
+            <div id="topic-modeling-results" class="bg-gray-700 text-gray-300 p-4 rounded-lg mt-4"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex justify-between items-center">
+            <button onclick="window.history.back()"
+                class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg shadow-md">
+                Go Back
+            </button>
+            <button id="copy-button" onclick="copyToClipboard()"
+                class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg shadow-md">
+                Copy to Clipboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='fullscreen.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts.js') }}"></script>
+</body>
+
+</html>

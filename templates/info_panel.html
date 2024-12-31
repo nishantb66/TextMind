@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Info Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #2E3B4E 0%, #4E5766 100%);
+            color: #DDD;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .info-container {
+            text-align: center;
+            background: rgba(50, 50, 50, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 700px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            max-height: 80vh;
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background-color: rgba(50, 50, 50, 0.5);
+        }
+
+        .info-container h2 {
+            margin-bottom: 20px;
+            color: #81C3D7;
+        }
+
+        .info-container div.entry {
+            text-align: left;
+            background: #555;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            color: #DDD;
+        }
+
+        .clickable-text {
+            padding: 12px 25px;
+            color: #81C3D7;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: color 0.3s ease, transform 0.3s ease;
+            margin: 15px 10px;
+            text-decoration: underline;
+        }
+
+        .clickable-text:hover {
+            color: #5A97A0;
+            transform: scale(1.05);
+        }
+
+        .logout-button,
+        .download-button {
+            position: absolute;
+            padding: 10px 20px;
+            background-color: #FF4D4D;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .logout-button {
+            top: 20px;
+            right: 20px;
+        }
+
+        .logout-button:hover {
+            background-color: #D93636;
+            transform: scale(1.05);
+        }
+
+        .download-button {
+            top: 20px;
+            right: 140px;
+            background-color: #81C3D7;
+        }
+
+        .download-button:hover {
+            background-color: #5A97A0;
+            transform: scale(1.05);
+        }
+
+        #word-cloud-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.3s, opacity 0.3s;
+        }
+
+        #word-cloud-container img {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 15px;
+        }
+
+        #word-cloud-container.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .arrow {
+            position: fixed;
+            bottom: 20px;
+            font-size: 2em;
+            color: #DDD;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .arrow-up {
+            right: 20px;
+        }
+
+        .arrow-down {
+            right: 80px;
+        }
+
+        /* Confirmation Modal styles */
+        #confirmation-modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirmation-content {
+            background-color: #3C3F41;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            color: #DDD;
+        }
+
+        .confirmation-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .confirmation-content button {
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: #81C3D7;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .confirmation-content button:hover {
+            background-color: #5A97A0;
+            transform: scale(1.05);
+        }
+
+        .confirmation-content .cancel-button {
+            background-color: #FF4D4D;
+        }
+
+        .confirmation-content .cancel-button:hover {
+            background-color: #D93636;
+        }
+
+        /* Popup message styles */
+        .popup-message {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #FF4D4D;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            animation: fadeInOut 3s ease-in-out forwards;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px) translateX(-50%);
+            }
+
+            10%,
+            90% {
+                opacity: 1;
+                transform: translateY(0) translateX(-50%);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-20px) translateX(-50%);
+            }
+        }
+
+        .kpi-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            color: #81C3D7;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .kpi-container h3 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .feedback-kpi-container {
+            position: absolute;
+            top: 100px;
+            left: 20px;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            color: #81C3D7;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .feedback-kpi-container h3 {
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="kpi-container">
+        <h3>Total Users: <span id="user-count">0</span></h3>
+    </div>
+
+    <div class="feedback-kpi-container">
+        <h3>Positive Feedback: <span id="positive-feedback">0%</span></h3>
+        <h3>Negative Feedback: <span id="negative-feedback">0%</span></h3>
+    </div>
+
+    <button class="logout-button" onclick="logout()">Logout</button>
+    <button class="download-button" onclick="downloadData()">Download Data</button>
+    <div class="info-container">
+        <h2>Information Panel</h2>
+        <div id="data-content">
+            <!-- Data will be inserted here -->
+        </div>
+        <h2>User Data</h2>
+        <div id="user-data">
+            <!-- User data will be inserted here -->
+        </div>
+        <h2>Feedback</h2>
+        <div id="feedback-content">
+            <!-- Feedback data will be inserted here -->
+        </div>
+    </div>
+
+
+    <div class="clickable-text" onclick="window.location.href='http://10.130.84.168:5000/admin'">PDF chatbot</div>
+    <div class="clickable-text" onclick="openConfirmationModal()">Clean Data</div>
+    <div class="clickable-text" onclick="generateWordCloud()">Generate Word Cloud</div>
+
+    <div id="word-cloud-container">
+        <img id="word-cloud-image" src="" alt="Word Cloud">
+        <button onclick="closeWordCloud()"
+            style="position: absolute; top: 20px; right: 20px; padding: 10px 20px; background-color: #FF4D4D; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1em;">Close</button>
+    </div>
+
+    <!-- Scroll Arrows -->
+    <button class="arrow arrow-up" onclick="scrollToTop()">&#8593;</button>
+    <button class="arrow arrow-down" onclick="scrollToBottom()">&#8595;</button>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="modal">
+        <div class="confirmation-content">
+            <h2>Are you sure you want to clear the data?</h2>
+            <button onclick="clearData()">Yes</button>
+            <button class="cancel-button" onclick="closeConfirmationModal()">No</button>
+        </div>
+    </div>
+
+    <!-- Popup message -->
+    <div id="popup-message" class="popup-message"></div>
+
+    <script src="{{ url_for('static', filename='fullscreen.js') }}"></script>
+    <script>
+        function clearData() {
+            fetch('/clear_data', {
+                method: 'POST'
+            }).then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('data-content').innerHTML = '';
+                        closeConfirmationModal();
+                    }
+                });
+        }
+
+        function logout() {
+            fetch('/logout_info', {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    sessionStorage.setItem('loggedOut', 'true');
+                    window.location.href = '/';
+                }
+            });
+        }
+
+        function downloadData() {
+            fetch('/download_data')
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(new Blob([blob]));
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = 'data_storage.csv';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => console.error('Download error:', error));
+        }
+
+        function generateWordCloud() {
+            fetch('/generate_word_cloud')
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = window.URL.createObjectURL(new Blob([blob]));
+                    document.getElementById('word-cloud-image').src = url;
+                    document.getElementById('word-cloud-container').classList.add('visible');
+                })
+                .catch(error => console.error('Word cloud generation error:', error));
+        }
+
+        function closeWordCloud() {
+            document.getElementById('word-cloud-container').classList.remove('visible');
+        }
+
+        function scrollToTop() {
+            document.querySelector('.info-container').scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        function scrollToBottom() {
+            const infoContainer = document.querySelector('.info-container');
+            infoContainer.scrollTo({
+                top: infoContainer.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
+
+        function openConfirmationModal() {
+            document.getElementById('confirmation-modal').style.display = 'flex';
+        }
+
+        function closeConfirmationModal() {
+            document.getElementById('confirmation-modal').style.display = 'none';
+        }
+
+        function showPopupMessage(message) {
+            const popup = document.getElementById('popup-message');
+            popup.textContent = message;
+            popup.style.display = 'block';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 3000);
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/get_data')
+                .then(response => response.json())
+                .then(data => {
+                    let content = '';
+                    data.reverse().forEach(entry => {
+                        content += `<div class="entry">
+                <strong>Type:</strong> ${entry.type}<br>
+                <strong>Input:</strong> ${entry.input}<br>
+                <strong>Output:</strong> ${entry.output}<br>
+            </div>`;
+                    });
+                    document.getElementById('data-content').innerHTML = content;
+                });
+
+            fetch('/get_user_data')
+                .then(response => response.json())
+                .then(users => {
+                    let userData = '';
+                    users.forEach(user => {
+                        userData += `<div class="entry"><strong>Username:</strong> ${user}</div>`;
+                    });
+                    document.getElementById('user-data').innerHTML = userData;
+                    document.getElementById('user-count').textContent = users.length;
+                });
+
+            fetchFeedback();
+
+            let inactivityTime = function () {
+                let time;
+                window.onload = resetTimer;
+                window.onmousemove = resetTimer;
+                window.onmousedown = resetTimer;
+                window.ontouchstart = resetTimer;
+                window.ontouchmove = resetTimer;
+                window.onclick = resetTimer;
+                window.onkeydown = resetTimer;
+                window.addEventListener('scroll', resetTimer, true);
+
+                function logout() {
+                    sessionStorage.setItem('sessionTimeout', 'true');
+                    window.location.href = '/';
+                }
+
+                function resetTimer() {
+                    clearTimeout(time);
+                    time = setTimeout(logout, 60000);
+                }
+            };
+
+            inactivityTime();
+
+            if (sessionStorage.getItem('sessionTimeout') === 'true') {
+                showPopupMessage('Session timeout');
+                sessionStorage.removeItem('sessionTimeout');
+            }
+        });
+
+        function fetchFeedback() {
+            fetch('/get_feedback')
+                .then(response => response.json())
+                .then(data => {
+                    let feedbackContent = '';
+                    let positiveCount = 0;
+                    let negativeCount = 0;
+                    const promises = data.map(entry => {
+                        return getSentiment(entry).then(sentiment => {
+                            if (sentiment === 'POSITIVE') {
+                                positiveCount++;
+                            } else if (sentiment === 'NEGATIVE') {
+                                negativeCount++;
+                            }
+                            feedbackContent += `<div class="entry">
+                        <strong>Feedback:</strong> ${entry}<br>
+                    </div>`;
+                        });
+                    });
+
+                    Promise.all(promises).then(() => {
+                        document.getElementById('feedback-content').innerHTML = feedbackContent;
+                        updateFeedbackKPI(positiveCount, negativeCount, data.length);
+                    });
+                });
+        }
+
+        function getSentiment(feedback) {
+            return fetch('/get_feedback_sentiment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ feedback })
+            })
+                .then(response => response.json())
+                .then(data => data[0].label.toUpperCase());
+        }
+
+        function updateFeedbackKPI(positiveCount, negativeCount, totalCount) {
+            const positivePercentage = ((positiveCount / totalCount) * 100).toFixed(2);
+            const negativePercentage = ((negativeCount / totalCount) * 100).toFixed(2);
+            document.getElementById('positive-feedback').textContent = `${positivePercentage}%`;
+            document.getElementById('negative-feedback').textContent = `${negativePercentage}%`;
+        }
+
+        function showPopupMessage(message) {
+            const popup = document.getElementById('popup-message');
+            popup.textContent = message;
+            popup.style.display = 'block';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 3000);
+        }
+
+        // Call fetchFeedback on page load
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchFeedback();
+
+            // Initialize WebSocket for real-time updates
+            var socket = io();
+            socket.on('new_feedback', function (feedback) {
+                const feedbackContainer = document.getElementById('feedback-content');
+                const newFeedback = `<div class="entry">
+    <strong>Feedback:</strong> ${feedback}<br>
+</div>`;
+                feedbackContainer.innerHTML = newFeedback + feedbackContainer.innerHTML;
+            });
+
+            // Update user count dynamically when new users are added
+            socket.on('new_user', function (username) {
+                const userContainer = document.getElementById('user-data');
+                const newUser = `<div class="entry"><strong>Username:</strong> ${username}</div>`;
+                userContainer.innerHTML = newUser + userContainer.innerHTML;
+                const userCountElement = document.getElementById('user-count');
+                userCountElement.textContent = parseInt(userCountElement.textContent) + 1;
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/get_data')
+                .then(response => response.json())
+                .then(data => {
+                    let content = '';
+                    data.reverse().forEach(entry => {
+                        if (entry.type === 'emotion_analysis') {
+                            content += `<div class="entry">
+                                <strong>Type:</strong> Emotion Analysis<br>
+                                <strong>Input:</strong> ${entry.input}<br>
+                                <strong>Output (Emotions):</strong> ${JSON.stringify(entry.output)}<br>
+                            </div>`;
+                        }
+                    });
+                    document.getElementById('data-content').innerHTML = content;
+                });
+        });
+
+    </script>
+</body>
+
+</html>

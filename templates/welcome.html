@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TextMind</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3a8a, #0f172a);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #f3f4f6;
+            margin: 0;
+        }
+
+        .welcome-container {
+            background-color: rgba(17, 24, 39, 0.85);
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        .welcome-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #60a5fa;
+            margin-bottom: 30px;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        button {
+            background-color: #60a5fa;
+            color: white;
+            padding: 12px 30px;
+            margin: 10px 10px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background-color: #3b82f6;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #1f2937;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            animation: scaleIn 0.5s ease-out forwards;
+            color: #f3f4f6;
+        }
+
+        @keyframes scaleIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: #374151;
+            border: none;
+            border-radius: 8px;
+            color: #f3f4f6;
+        }
+
+        .input-label {
+            text-align: left;
+            color: #9ca3af;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .popup-message {
+            display: none;
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ef4444;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+            animation: fadeInOut 3s ease-out forwards;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            10%,
+            90% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Welcome Section -->
+    <div class="welcome-container">
+        <h1 class="welcome-text">TextMind - Your AI-Powered Text Companion</h1>
+        <div class="flex flex-wrap justify-center gap-4">
+            <button class="login-signup-button" onclick="openAuthModal()">Login or Signup</button>
+            <button class="info-button" onclick="openInfoModal()">About</button>
+            <button class="access-button" onclick="openAdminModal()">Data Access</button>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="info-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeInfoModal()">&times;</span>
+            <h2>About TextMind</h2>
+            <p>TextMind is an AI-powered text analysis platform designed to help you understand your text better. From
+                emotion detection to advanced NLP functionalities like sentiment analysis, summarization, and
+                translation, TextMind is here to assist.</p>
+            <h3>Key Features</h3>
+            <ul class="list-disc list-inside text-left">
+                <li>Emotion Detection</li>
+                <li>Sentiment Analysis</li>
+                <li>News Summarization</li>
+                <li>Named Entity Recognition (NER)</li>
+                <li>Language Translation</li>
+                <li>Info Assist Bot</li>
+            </ul>
+            <h3>Powered by Transformer Models</h3>
+            <p>TextMind uses state-of-the-art transformer models to deliver high accuracy across multiple text analysis
+                tasks.</p>
+        </div>
+    </div>
+
+    <!-- Authentication Modal -->
+    <div id="auth-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAuthModal()">&times;</span>
+            <h2>User Authentication</h2>
+            <form id="auth-form" onsubmit="authenticate(event)">
+                <label class="input-label" for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+                <button class="info-login" type="submit">Login</button>
+                <button class="info-login" type="button" onclick="openSignupModal()">Signup</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signup-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSignupModal()">&times;</span>
+            <h2>Create New User</h2>
+            <form id="signup-form" onsubmit="signup(event)">
+                <label class="input-label" for="new-username">Username</label>
+                <input type="text" id="new-username" name="new-username" required>
+                <button class="info-login" type="submit">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Authentication Modal -->
+    <div id="admin-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAdminModal()">&times;</span>
+            <h2>Admin Authentication</h2>
+            <form id="admin-form" onsubmit="authenticateAdmin(event)">
+                <label class="input-label" for="admin-username">Admin Username</label>
+                <input type="text" id="admin-username" name="admin-username" required>
+                <label class="input-label" for="admin-password">Password</label>
+                <input type="password" id="admin-password" name="admin-password" required>
+                <button class="info-login" type="submit">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Popup message -->
+    <div id="popup-message" class="popup-message"></div>
+
+    <script>
+        function openInfoModal() {
+            document.getElementById('info-modal').style.display = 'flex';
+        }
+
+        function closeInfoModal() {
+            document.getElementById('info-modal').style.display = 'none';
+        }
+
+        function openAuthModal() {
+            document.getElementById('auth-modal').style.display = 'flex';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal').style.display = 'none';
+        }
+
+        function openSignupModal() {
+            closeAuthModal();
+            document.getElementById('signup-modal').style.display = 'flex';
+        }
+
+        function closeSignupModal() {
+            document.getElementById('signup-modal').style.display = 'none';
+        }
+
+        function openAdminModal() {
+            document.getElementById('admin-modal').style.display = 'flex';
+        }
+
+        function closeAdminModal() {
+            document.getElementById('admin-modal').style.display = 'none';
+        }
+
+        function showPopupMessage(message) {
+            const popup = document.getElementById('popup-message');
+            popup.textContent = message;
+            popup.style.display = 'block';
+            setTimeout(() => {
+                popup.style.display = 'none';
+            }, 3000);
+        }
+
+        function authenticate(event) {
+            event.preventDefault();
+            const username = document.getElementById('username').value;
+
+            fetch('/authenticate_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        sessionStorage.setItem('username', username);
+                        window.location.href = '/home';
+                    } else {
+                        showPopupMessage('Incorrect username');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showPopupMessage('An error occurred. Please try again.');
+                });
+        }
+
+        function signup(event) {
+            event.preventDefault();
+            const newUsername = document.getElementById('new-username').value;
+
+            fetch('/signup_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ newUsername }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/home';
+                    } else {
+                        showPopupMessage(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showPopupMessage('An error occurred. Please try again.');
+                });
+        }
+
+        function authenticateAdmin(event) {
+            event.preventDefault();
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+
+            fetch('/authenticate_admin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/info_panel';
+                    } else {
+                        showPopupMessage('Incorrect admin credentials');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showPopupMessage('An error occurred. Please try again.');
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            if (sessionStorage.getItem('loggedOut') === 'true') {
+                showPopupMessage('Logged out');
+                sessionStorage.removeItem('loggedOut');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Translator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e293b, #516186);
+            color: #e5e7eb;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: rgba(31, 41, 55, 0.8);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            animation: fadeIn 0.6s ease-out;
+            margin: 0px 100px 0px 100px;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            background-color: #1f2937;
+            border: 1px solid #374151;
+            color: #e5e7eb;
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus,
+        select:focus {
+            border-color: #3b82f6;
+            outline: none;
+        }
+
+        button {
+            padding: 12px 24px;
+            background-color: #3b82f6;
+            color: white;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2563eb;
+            transform: scale(1.05);
+        }
+
+        #back-button {
+            background: none;
+            color: #e5e7eb;
+            font-size: 1.1rem;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        #back-button:hover {
+            color: #3b82f6;
+        }
+
+        .result-text {
+            background-color: #1f2937;
+            padding: 15px;
+            border-radius: 8px;
+            color: #cbd5e0;
+            font-size: 1.2rem;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Back Button -->
+    <button id="back-button" onclick="window.location.href='/home'" title="Go back">
+        <i class="fas fa-arrow-left"></i> Back
+    </button>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center mb-8"><span class="text-blue-400">Language</span> Translator</h1>
+        <form method="POST" class="space-y-6">
+            <textarea name="source_text" placeholder="Enter text to translate"
+                class="focus:ring-2 focus:ring-blue-500 h-32" required></textarea>
+
+            <select name="target_lang" class="focus:ring-2 focus:ring-blue-500" required>
+                {% for lang_code, lang_name in supported_languages.items() %}
+                <option value="{{ lang_code }}" {% if target_lang==lang_code %}selected{% endif %}>{{ lang_name }}
+                </option>
+                {% endfor %}
+            </select>
+
+            <div class="flex justify-center">
+                <button type="submit" class="w-full max-w-xs">Translate</button>
+            </div>
+        </form>
+
+        {% if translated_text %}
+        <div class="mt-8">
+            <h2 class="text-2xl font-semibold mb-4">Translated Text:</h2>
+            <p class="result-text">{{ translated_text }}</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        document.querySelector('form').addEventListener('submit', () => {
+            // Show some kind of loading effect if necessary
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> -->
+    <link rel="apple-touch-icon" sizes="180x180" href="static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="static/favicon-16x16.png">
+    <link rel="manifest" href="static/site.webmanifest">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #3a3a3a;
+            color: #ccc;
+            margin: 0;
+        }
+
+        .admin-container {
+            background: rgba(48, 48, 48, 0.9);
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease-in-out;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            color: #ffffff;
+        }
+
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .admin-header img {
+            height: 40px;
+            width: 40px;
+        }
+
+        .admin-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .admin-form input,
+        .admin-form textarea {
+            padding: 12px 15px;
+            background-color: #222;
+            border: 1px solid #1d1d1d;
+            border-radius: 5px;
+            color: #ddd;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .admin-form input:focus,
+        .admin-form textarea:focus {
+            border-color: #f2f3f3;
+            outline: none;
+        }
+
+        .admin-form button {
+            padding: 12px;
+            background-color: #555;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .admin-form button:hover {
+            background-color: #333;
+            transform: scale(1.05);
+        }
+
+        .logout-button {
+            margin-top: 20px;
+            padding: 12px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .logout-button:hover {
+            background-color: #cc0000;
+            transform: scale(1.05);
+        }
+
+        .loading-indicator {
+            width: 100%;
+            height: 4px;
+            background-color: #ffffff;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: loading 2s infinite;
+            display: none;
+        }
+
+        @keyframes loading {
+            0% {
+                left: -100%;
+            }
+
+            50% {
+                left: 0;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="loading-indicator" id="loading-indicator"></div>
+    <div class="admin-container">
+        <div class="admin-header">
+            <img src="{{ url_for('static', filename='admin-logo.png') }}" alt="Admin Logo">
+            <h1>Admin Panel</h1>
+        </div>
+        <form class="admin-form" id="admin-form">
+            <input type="text" id="new-question" placeholder="New Question" required>
+            <textarea id="new-answer" rows="4" placeholder="New Answer" required></textarea>
+            <button type="submit">Add Question</button>
+        </form>
+        <button class="logout-button" id="logout-button">Logout</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='fullscreen.js') }}"></script>
+
+    <script>
+        document.getElementById('admin-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const newQuestion = document.getElementById('new-question').value;
+            const newAnswer = document.getElementById('new-answer').value;
+
+            const loadingIndicator = document.getElementById('loading-indicator');
+            loadingIndicator.style.display = 'block';
+
+            const response = await fetch('/add_question', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    question: newQuestion,
+                    answer: newAnswer
+                })
+            });
+
+            loadingIndicator.style.display = 'none';
+
+            if (response.ok) {
+                const message = document.createElement('div');
+                message.textContent = 'Question and Answer added successfully!';
+                message.style.position = 'fixed';
+                message.style.bottom = '20px';
+                message.style.left = '50%';
+                message.style.transform = 'translateX(-50%)';
+                message.style.backgroundColor = '#28a745';
+                message.style.color = 'white';
+                message.style.padding = '10px';
+                message.style.borderRadius = '5px';
+                message.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+                message.style.zIndex = '1000';
+                document.body.appendChild(message);
+
+                setTimeout(() => {
+                    document.body.removeChild(message);
+                }, 3000);
+
+                document.getElementById('admin-form').reset();
+            } else {
+                const errorMessage = document.createElement('div');
+                errorMessage.textContent = 'Error adding question and answer.';
+                errorMessage.style.position = 'fixed';
+                errorMessage.style.bottom = '20px';
+                errorMessage.style.left = '50%';
+                errorMessage.style.transform = 'translateX(-50%)';
+                errorMessage.style.backgroundColor = '#dc3545';
+                errorMessage.style.color = 'white';
+                errorMessage.style.padding = '10px';
+                errorMessage.style.borderRadius = '5px';
+                errorMessage.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+                errorMessage.style.zIndex = '1000';
+                document.body.appendChild(errorMessage);
+
+                setTimeout(() => {
+                    document.body.removeChild(errorMessage);
+                }, 3000);
+            }
+        });
+
+        document.getElementById('logout-button').addEventListener('click', async () => {
+            const response = await fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                window.location.href = '/chatbot';
+            } else {
+                alert('Error logging out');
+            }
+        });
+    </script>
+
+</body>
+
+</html>

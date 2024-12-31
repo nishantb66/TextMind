@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TextMind</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="static\apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="static\favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="static\favicon-16x16.png">
+    <link rel="manifest" href="static\site.webmanifest">
+</head>
+
+<body>
+    <div class="container">
+        <h2>Topic Modeling</h2>
+        <div id="topic-modeling-results">
+            {% for topic in topics %}
+            <div class="topic">
+                <p>{{ topic }}</p>
+                <p><strong>Interpretation:</strong> This topic is primarily about <strong>{{
+                        get_topic_interpretation(topic) }}</strong>.</p>
+            </div>
+            {% endfor %}
+        </div>
+        <button onclick="window.history.back()">Go Back</button>
+    </div>
+
+    <script src="{{ url_for('static', filename='fullscreen.js') }}"></script>
+</body>
+
+</html>

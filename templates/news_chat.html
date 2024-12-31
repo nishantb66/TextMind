@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with a News Article</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3b82f6;
+            border-radius: 9999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2563eb;
+        }
+
+        /* Flex container for a two-column layout */
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .flex-item {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0, 0, 0);
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #2d3748;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-300 flex items-center justify-center min-h-screen">
+
+    <div class="max-w-4xl mx-auto mt-8 p-6 bg-gradient-to-br from-gray-800 to-gray-900 shadow-xl rounded-lg relative">
+
+        <!-- Floating Accent Circle Decoration -->
+        <div class="absolute -top-8 -right-8 bg-blue-600 h-24 w-24 rounded-full filter blur-xl opacity-30"></div>
+        <div class="absolute bottom-8 -left-8 bg-pink-500 h-16 w-16 rounded-full filter blur-2xl opacity-40"></div>
+
+        <!-- Main Header -->
+        <h1 class="text-3xl font-extrabold mb-4 text-white text-center">
+            <span class="text-blue-400">Chat</span> with a News Article
+        </h1>
+
+        <!-- Flex Container for both functionalities -->
+        <div class="flex-container">
+
+            <!-- Single Article Chat Section -->
+            <div class="flex-item">
+                <form id="upload-single-form" class="mb-6 space-y-2">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Enter News Article URL</label>
+                        <input type="url" id="url-input-single" name="url"
+                            class="block w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 shadow-inner focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition"
+                            placeholder="https://example.com/article">
+                    </div>
+                    <button type="submit"
+                        class="w-full py-2 px-3 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-400 focus:ring-opacity-70 transition-colors duration-200">
+                        Load Article
+                    </button>
+                </form>
+
+                <div id="upload-status-single" class="text-green-500 mb-4 text-sm font-medium"></div>
+
+                <!-- Chat Section -->
+                <h2 class="text-lg font-semibold mb-2 text-gray-400">Ask a Question about the Article</h2>
+                <form id="ask-single-form" class="space-y-2">
+                    <input type="text" id="query-single" placeholder="Ask your question..."
+                        class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 shadow-inner focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition">
+                    <button type="submit"
+                        class="w-full py-2 px-3 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-400 focus:ring-opacity-70 transition-colors duration-200">
+                        Ask
+                    </button>
+                </form>
+
+                <div id="response-single" class="text-gray-200 mt-2 text-sm"></div>
+            </div>
+
+            <!-- Multiple Article Comparison Section -->
+            <div class="flex-item">
+                <form id="upload-multiple-form" class="mb-6 space-y-2">
+                    <h2 class="text-lg font-semibold mb-2 text-gray-400">Compare Multiple Articles</h2>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-1">Enter News Article URLs</label>
+                        <input type="url" id="url-input1" name="urls[]"
+                            class="block w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 shadow-inner focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition"
+                            placeholder="https://example.com/article1">
+                        <input type="url" id="url-input2" name="urls[]"
+                            class="block w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-gray-200 shadow-inner focus:outline-none focus:ring focus:ring-blue-500 focus:ring-opacity-50 transition mt-2"
+                            placeholder="https://example.com/article2">
+                    </div>
+                    <button type="submit"
+                        class="w-full py-2 px-3 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-400 focus:ring-opacity-70 transition-colors duration-200">
+                        Load Articles
+                    </button>
+                </form>
+
+                <div id="upload-status-multiple" class="text-green-500 mb-4 text-sm font-medium"></div>
+
+                <!-- Compare Section -->
+                <h2 class="text-lg font-semibold mb-2 text-gray-400">Compare Articles</h2>
+                <form id="compare-form" class="space-y-2">
+                    <button type="submit"
+                        class="w-full py-2 px-3 bg-blue-600 text-white font-semibold rounded-lg shadow-lg hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-400 focus:ring-opacity-70 transition-colors duration-200">
+                        Compare and Conclude
+                    </button>
+                </form>
+
+                <div id="response-multiple" class="text-gray-200 mt-2 text-sm"></div>
+            </div>
+
+        </div>
+
+        <!-- Clear Button -->
+        <div class="mt-6">
+            <button id="clear-button"
+                class="w-full py-2 px-3 bg-red-600 text-white font-semibold rounded-lg shadow-lg hover:bg-red-500 focus:outline-none focus:ring focus:ring-red-400 focus:ring-opacity-70 transition-colors duration-200">
+                Clear
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal to show the comparison results -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 class="text-white text-lg mb-4">Comparison Results</h2>
+            <div id="modal-content-text" class="text-gray-200"></div>
+        </div>
+    </div>
+
+    <script>
+        // Single Article Chat Functionality
+        document.getElementById('upload-single-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const articleUrl = document.getElementById('url-input-single').value;
+            const formData = new URLSearchParams();
+            formData.append('url', articleUrl);
+
+            const response = await fetch('/upload_single', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+            if (result.error) {
+                document.getElementById('upload-status-single').textContent = result.error;
+            } else {
+                document.getElementById('upload-status-single').textContent = result.message;
+            }
+        });
+
+        document.getElementById('ask-single-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const query = document.getElementById('query-single').value;
+            const formData = new URLSearchParams();
+            formData.append('query', query);
+
+            const response = await fetch('/ask_single', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+            if (result.error) {
+                document.getElementById('response-single').textContent = result.error;
+            } else {
+                document.getElementById('response-single').textContent = result.response;
+            }
+        });
+
+        // Multiple Article Compare Functionality
+        document.getElementById('upload-multiple-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const url1 = document.getElementById('url-input1').value;
+            const url2 = document.getElementById('url-input2').value;
+            const formData = new URLSearchParams();
+            formData.append('urls[]', url1);
+            formData.append('urls[]', url2);
+
+            const response = await fetch('/upload_multiple', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const result = await response.json();
+            if (result.error) {
+                document.getElementById('upload-status-multiple').textContent = result.error;
+            } else {
+                document.getElementById('upload-status-multiple').textContent = result.message;
+            }
+        });
+
+        document.getElementById('compare-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const response = await fetch('/compare', {
+                method: 'POST'
+            });
+
+            const result = await response.json();
+            if (result.error) {
+                document.getElementById('response-multiple').textContent = result.error;
+            } else {
+                // Show the comparison result in the modal
+                document.getElementById('modal-content-text').innerHTML = formatComparison(result.response);
+                showModal();
+            }
+        });
+
+        // Function to format the comparison result into points
+        function formatComparison(text) {
+            const points = text.split('**').filter(point => point.trim().length > 0);
+            return '<ul>' + points.map(point => '<li>' + point + '</li>').join('') + '</ul>';
+        }
+
+        // Modal functionality
+        const modal = document.getElementById("myModal");
+        const span = document.getElementsByClassName("close")[0];
+
+        function showModal() {
+            modal.style.display = "block";
+        }
+
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        // Clear button functionality
+        document.getElementById('clear-button').addEventListener('click', function () {
+            document.getElementById('url-input-single').value = '';
+            document.getElementById('query-single').value = '';
+            document.getElementById('url-input1').value = '';
+            document.getElementById('url-input2').value = '';
+            document.getElementById('response-single').textContent = '';
+            document.getElementById('response-multiple').textContent = '';
+        });
+    </script>
+
+</body>
+
+</html>

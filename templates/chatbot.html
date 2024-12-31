@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with InfoAssist Bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 9999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2d3748;
+        }
+
+        /* Hover effects */
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .button-effect {
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .button-effect:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Main Background */
+        body {
+            background: linear-gradient(135deg, #1e293b, #111827);
+            color: #cbd5e0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Form Input Focus State */
+        .focus-input {
+            border-radius: 0.75rem;
+            border: 1px solid #374151;
+            background-color: #1f2937;
+            padding: 0.75rem;
+            color: #e5e7eb;
+            transition: box-shadow 0.3s, border-color 0.3s ease;
+        }
+
+        .focus-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.5);
+            border-color: #3b82f6;
+        }
+
+        /* Enhanced Button Styles */
+        button {
+            border-radius: 0.75rem;
+            padding: 0.75rem 1.25rem;
+        }
+
+        /* Suggestion Panel Animation */
+        #suggestion-panel {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #suggestion-panel.open {
+            transform: translateX(0);
+        }
+
+        #suggestion-panel.closed {
+            transform: translateX(-100%);
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 min-h-screen flex items-center justify-center">
+    <!-- Top Navigation -->
+    <div class="absolute top-6 w-full max-w-5xl flex justify-between px-6 z-10">
+        <button id="admin-login"
+            class="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-lg shadow-lg button-effect">
+            Login as Admin
+        </button>
+        <div>
+            <button onclick="window.location.href='/home'"
+                class="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-lg shadow-lg mr-2 button-effect">
+                Go Back
+            </button>
+            <button id="suggestion-button" onclick="toggleSuggestionPanel()"
+                class="bg-gray-700 hover:bg-gray-600 text-white px-5 py-2 rounded-lg shadow-lg button-effect">
+                Suggestions
+            </button>
+        </div>
+    </div>
+
+    <!-- Chatbot Container -->
+    <div id="chatbot-container" class="bg-gray-800 shadow-2xl rounded-lg p-8 w-full max-w-3xl card">
+        <div class="mb-4 text-center">
+            <h2 class="text-3xl font-extrabold text-white"><span class="text-blue-400">Chat</span> with InfoAssist</h2>
+        </div>
+        <div id="chat-box" class="h-96 overflow-y-auto p-5 bg-gray-700 rounded-lg mb-4 shadow-inner"></div>
+        <form id="chat-form" class="flex space-x-2">
+            <button type="button" id="clear-chat"
+                class="bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition-all button-effect">
+                Clear
+            </button>
+            <textarea id="question" rows="1" placeholder="Ask your question here..."
+                class="flex-1 focus-input focus:ring-2 focus:ring-blue-500 transition-all"></textarea>
+            <button type="submit"
+                class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-all button-effect">
+                Send
+            </button>
+        </form>
+    </div>
+
+    <!-- Suggestion Panel -->
+    <div id="suggestion-panel" class="fixed left-0 top-0 h-full w-64 bg-gray-800 shadow-lg transform closed z-20">
+        <span id="close-btn" onclick="toggleSuggestionPanel()"
+            class="text-gray-400 text-3xl absolute top-4 right-4 cursor-pointer hover:text-white transition-all">
+            &times;
+        </span>
+        <form id="suggestion-form" class="p-6 mt-12">
+            <textarea id="suggestion-text" placeholder="Enter your suggestion here..."
+                class="w-full focus-input focus:ring-2 focus:ring-blue-500 transition-all"></textarea>
+            <button type="submit"
+                class="mt-4 bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-all w-full button-effect">
+                Submit
+            </button>
+        </form>
+    </div>
+
+    <!-- Login Popup -->
+    <div id="login-popup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-30">
+        <div class="bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-md relative card">
+            <button id="close-login-popup"
+                class="absolute top-4 right-4 text-gray-500 text-2xl cursor-pointer hover:text-gray-300 transition-all">
+                &times;
+            </button>
+            <form id="login-form" class="space-y-6">
+                <input type="text" id="username" placeholder="Username"
+                    class="w-full focus-input focus:ring-2 focus:ring-blue-500 transition-all">
+                <input type="password" id="password" placeholder="Password"
+                    class="w-full focus-input focus:ring-2 focus:ring-blue-500 transition-all">
+                <button type="submit"
+                    class="w-full bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition-all button-effect">
+                    Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Suggestion & Popup Messages -->
+    <div id="suggestion-message"
+        class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg hidden">
+        Thank you for your suggestion, we will look into it.
+    </div>
+    <div id="popup-message"
+        class="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg hidden">
+        Credentials incorrect
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        const toggleSuggestionPanel = () => {
+            const panel = document.getElementById('suggestion-panel');
+            panel.classList.toggle('open');
+            panel.classList.toggle('closed');
+        }
+
+        document.getElementById('chat-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const question = document.getElementById('question').value.trim();
+            if (question === '') return;
+
+            removePreviousFeedback();
+
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('user-message', 'bg-blue-600', 'text-white', 'p-3', 'rounded-lg', 'mb-4', 'self-end', 'shadow-md');
+            userMessage.textContent = `You: ${question}`;
+            document.getElementById('chat-box').appendChild(userMessage);
+
+            document.getElementById('question').value = '';
+
+            const response = await fetch('/get_answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question })
+            });
+
+            const result = await response.json();
+
+            const botMessage = document.createElement('div');
+            botMessage.classList.add('bot-message', 'bg-gray-600', 'text-gray-300', 'p-3', 'rounded-lg', 'mb-4', 'self-start', 'shadow-md');
+            botMessage.textContent = `Bot: ${result.answer}`;
+            document.getElementById('chat-box').appendChild(botMessage);
+
+            document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+
+            if (!result.quit) {
+                const feedbackMessage = document.createElement('div');
+                feedbackMessage.classList.add('feedback-message');
+                feedbackMessage.innerHTML = `
+                <p>Was this answer helpful?</p>
+                <button class="feedback-btn yes-btn bg-green-600 text-white px-3 py-1 rounded-lg mr-2">Yes</button>
+                <button class="feedback-btn no-btn bg-red-600 text-white px-3 py-1 rounded-lg">No</button>
+                `;
+                document.getElementById('chat-box').appendChild(feedbackMessage);
+
+                document.querySelector('.yes-btn').addEventListener('click', () => {
+                    document.getElementById('chat-box').removeChild(feedbackMessage);
+                });
+
+                document.querySelector('.no-btn').addEventListener('click', async () => {
+                    document.getElementById('chat-box').removeChild(feedbackMessage);
+
+                    const similarQuestionsMessage = document.createElement('div');
+                    similarQuestionsMessage.innerHTML = `
+                    <p>Select the correct question:</p>
+                    ${result.similar_questions.map(q => `<button class="similar-question-btn bg-blue-600 text-white px-3 py-1 rounded-lg mb-2 w-full">${q}</button>`).join('')}
+                    `;
+                    document.getElementById('chat-box').appendChild(similarQuestionsMessage);
+
+                    document.querySelectorAll('.similar-question-btn').forEach(btn => {
+                        btn.addEventListener('click', async (event) => {
+                            const selectedQuestion = event.target.textContent;
+                            document.getElementById('chat-box').removeChild(similarQuestionsMessage);
+
+                            const selectedAnswerResponse = await fetch('/get_selected_answer', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({ selected_question: selectedQuestion })
+                            });
+
+                            const selectedAnswerResult = await selectedAnswerResponse.json();
+                            const selectedAnswerMessage = document.createElement('div');
+                            selectedAnswerMessage.classList.add('bot-message', 'bg-gray-600', 'text-gray-300', 'p-3', 'rounded-lg', 'mb-4', 'self-start', 'shadow-md');
+                            selectedAnswerMessage.textContent = `Bot: ${selectedAnswerResult.answer}`;
+                            document.getElementById('chat-box').appendChild(selectedAnswerMessage);
+                        });
+                    });
+                });
+            }
+
+            if (result.quit) {
+                const quitMessage = document.createElement('div');
+                quitMessage.textContent = "You have ended the chat session.";
+                quitMessage.classList.add('text-red-600', 'text-center', 'font-semibold', 'mt-4');
+                document.getElementById('chat-box').appendChild(quitMessage);
+                document.getElementById('question').disabled = true;
+            }
+        });
+
+        function removePreviousFeedback() {
+            const feedbackElements = document.querySelectorAll('.feedback-message, .similar-questions-message');
+            feedbackElements.forEach(el => el.remove());
+        }
+
+        document.getElementById('clear-chat').addEventListener('click', () => {
+            document.getElementById('chat-box').innerHTML = '';
+        });
+
+        document.getElementById('login-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                showPopupMessage('Please enter both username and password.');
+                return;
+            }
+
+            const response = { success: username === "admin" && password === "admin1234" };
+
+            if (response.success) {
+                window.location.href = '/admin';
+            } else {
+                showPopupMessage('Credentials incorrect');
+            }
+        });
+
+        function showPopupMessage(message) {
+            const popupMessage = document.getElementById('popup-message');
+            popupMessage.textContent = message;
+            popupMessage.classList.remove('hidden');
+            setTimeout(() => popupMessage.classList.add('hidden'), 3000);
+        }
+
+        document.getElementById('suggestion-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const suggestion = document.getElementById('suggestion-text').value.trim();
+            if (suggestion) {
+                fetch('/submit_suggestion', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ suggestion })
+                }).then(() => {
+                    document.getElementById('suggestion-message').classList.remove('hidden');
+                    setTimeout(() => {
+                        document.getElementById('suggestion-message').classList.add('hidden');
+                    }, 3000);
+                    toggleSuggestionPanel();
+                });
+            }
+        });
+
+        document.getElementById('admin-login').addEventListener('click', () => {
+            document.getElementById('login-popup').classList.remove('hidden');
+        });
+
+        document.getElementById('close-login-popup').addEventListener('click', () => {
+            document.getElementById('login-popup').classList.add('hidden');
+        });
+    </script>
+</body>
+
+</html>

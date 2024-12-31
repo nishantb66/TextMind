@@ -1,0 +1,24 @@
+Q: What is a language identification task in NLP?
+A: Language identification is the task of determining the language that a given text is written in, often using statistical or machine learning methods.
+
+Q: What is a semantic network in NLP?
+A: A semantic network is a graphical representation of knowledge that interconnects concepts or entities with labeled relationships, used in NLP for understanding and generating language.
+
+Q: What is a constituency parse?
+A: A constituency parse is a tree-based representation of a sentence that breaks the sentence down into sub-phrases or "constituents" according to a grammar.
+
+Q: What is a language model perplexity?
+A: Perplexity is a measurement of how well a probability model predicts a sample. In NLP, it's used to evaluate language models by measuring how well they predict a text.
+
+Q: What is a phoneme in NLP?
+A: A phoneme is the smallest unit of sound in a language that can distinguish one word from another. In NLP, phonemes are used in speech recognition and synthesis.
+
+Q: What is a hypernym in NLP?
+A: A hypernym is a word with a broad meaning that more specific words fall under; for example, "color" is a hypernym of "red".
+
+Q: What is a hyponym in NLP?
+A: A hyponym is a word that denotes a subclass of a more general class. For example, "sparrow" is a hyponym of "bird".
+
+Q: What is a collocation in NLP?
+A: A collocation is a sequence of words or terms that co-occur more often than would be expected by chance. In NLP, identifying collocations can help in understanding language patterns.
+
