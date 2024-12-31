@@ -3,6 +3,10 @@
 ## Project Overview
 TextMind is an advanced AI-driven application designed to revolutionize the way users interact with textual content. Leveraging Natural Language Processing (NLP) and Machine Learning (ML), TextMind offers a diverse set of features such as document analysis, conversational AI, and real-time language understanding. The application serves as a comprehensive solution for document processing, chatbot communication, and knowledge extraction, aiming to enhance user productivity and engagement.
 
+- [Demo video](https://drive.google.com/file/d/16EkHPQwihVbBWwiYwN8WEOH4kCIXLgav/view?usp=drive_link)
+- [Project Report](https://drive.google.com/file/d/1bC8jolU6ljAlYsg-s4hW2jpjRpk0uPwB/view?usp=sharing)
+- [Research Paper](https://drive.google.com/file/d/1C4EkanSQzvaw1W3FjSY9BbK8lgzAfoFK/view?usp=sharing)
+
 ---
 
 ## Features
@@ -60,32 +64,6 @@ TextMind is an advanced AI-driven application designed to revolutionize the way 
 
 ---
 
-## How to Run the Project
-### Prerequisites
-- Python 3.8 or higher.
-- Install dependencies listed in `requirements.txt`.
-
-### Steps
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd TextMind_Project
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Run the application:
-   ```bash
-   python app.py
-   ```
-5. Access the application at `http://localhost:5000`.
-
----
-
 ## Future Enhancements
 - Add support for image-to-text processing.
 - Integrate voice-based interactions.
@@ -95,7 +73,7 @@ TextMind is an advanced AI-driven application designed to revolutionize the way 
 
 ## Contributors
 - **Your Name**
-  - [GitHub](https://github.com/yourusername)
-  - [LinkedIn](https://linkedin.com/in/yourusername)
+  - [GitHub](https://github.com/nishantb66)
+  - [LinkedIn](https://www.linkedin.com/in/nishantbaru/)
 
 Feel free to contribute by submitting pull requests or raising issues!
